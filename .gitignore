@@ -2,8 +2,10 @@
 secret.txt
 
 ### Other Compiled Files ###
-dist/index.js
+dist/main.js
 package-lock.json
+dist/attributes.txt
+dist/little-flower-nft.jpg
 
 ### Node JS ###
 

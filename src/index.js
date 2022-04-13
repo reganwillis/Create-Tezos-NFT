@@ -107,11 +107,11 @@ async function mintNFT() {
   const user = "Temp User";  // TODO: get name from user
   const nft_title = "Little Flower Grown by " + user;
   const nft_description = "Minted from the Little Flower game. https://twitter.com/regrowgames";
-  const nft_image = '../images/test_NFT.jpg';  // TODO: get image from where Create Flower drops it
+  const nft_image = '../dist/little-flower-nft.jpg';
 
-  // TODO: get json file from where Create Flower drops it
-  const promise = await fetch("./attributes.json").then((response) => {return response}).catch((err) => {throw new Error("Unable to fetch attributes.json: " + err)});
-  const attributes_text = await promise.text().then((result) => {return result}).catch((err) => {throw new Error('Error unpacking JSON attributes: ' + err)});
+  // get nft image metadata
+  const promise = await fetch("attributes.txt").then((response) => {return response}).catch((err) => {throw new Error("Unable to fetch attributes.txt: " + err)});
+  const attributes_text = await promise.text().then((result) => {return result}).catch((err) => {throw new Error('Error unpacking attributes: ' + err)});
   const attributes_json = JSON.parse(attributes_text);
 
   // get pinata metadata to send to smart contract
