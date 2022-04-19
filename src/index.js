@@ -112,7 +112,12 @@ async function mintNFT() {
 
   try {
     console.log("Minting NFT on the Tezos blockchain...");
-    const user = "Temp User";  // TODO: get name from user
+
+    // get name from user
+    const user = document.getElementById('name').value;
+    if (user === "")
+      throw new Error('Name not provided.');
+
     const nft_title = "Little Flower Grown by " + user;
     const nft_description = "Minted from the Little Flower game. https://twitter.com/regrowgames";
     const nft_image = '../dist/little-flower-nft.jpg';
