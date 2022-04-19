@@ -7,14 +7,32 @@
     <title>Create Tezos NFT</title>
 
     <link rel="icon" type="image/png" href="" />
-    <link rel="stylesheet" href="" />
+    <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <div>    
-        <h1>Create Tezos NFT!</h1>
-        <button id="mint-nft">Mint NFT</button>
-        <button id="connect-wallet">Connect Wallet</button>
-        <button id="disconnect-wallet">Disconnect Wallet</button>
+        <h1>Create a Tezos NFT!</h1>
+        <div>
+          <h3>Connect Your Tezos Wallet</h3>
+          <button id="connect-wallet">Connect Wallet</button>
+          <button id="disconnect-wallet">Disconnect Wallet</button>
+        </div>
+        <div class="vertical">
+          <h3>Mint an NFT to Your Wallet</h3>
+          <button id="mint-nft">Mint NFT</button>
+        </div>
+        <div class="vertical">
+          <h3>Transfer Your NFT to Another Wallet</h3>
+          <label>Enter the ID of the NFT you will transfer: </label>
+          <input type="text", id="nft-id">
+          <label>Enter the wallet address of the user you will transfer the NFT to: </label>
+          <input type="text", id="address">
+          <button id="transfer-nft">Transfer NFT</button>
+        </div>
+        <div id="transfer-hidden">
+          <h3>Transfer Successful!</h3>
+          <p id="transfer-success"></p>
+        </div>
     </div>
   </body>
   <script src="./main.js"></script>

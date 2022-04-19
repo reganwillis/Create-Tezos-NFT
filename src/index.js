@@ -16,11 +16,14 @@ beacon.client.setColorMode(ColorMode.DARK);
 var connected_account;
 connectWallet();
 
+// hide success displays
+document.getElementById("transfer-hidden").style.display = 'none';
+
 // button functionality
 document.getElementById("connect-wallet").onclick = connectWallet;
 document.getElementById("disconnect-wallet").onclick = disconnectWallet;
 document.getElementById("mint-nft").onclick = mintNFT;
-// TODO: transfer NFT button
+document.getElementById("transfer-nft").onclick = transferNFT;
 
 /**
  * Connect user wallet if none is already connected.
@@ -146,20 +149,40 @@ async function mintNFT() {
  * TODO: consolidate similar aspects between mintNFT and transferNFT
  */
 async function transferNFT() {
-  console.log("Minting NFT on the Tezos blockchain...");
+  // first check that wallet has been connected (if not, connect)
+  connectWallet();
 
-  // connect to smart contract and call mint method
-  const ret = await Tezos.wallet.at(contract_id).then((result) => {
-    console.log(`Available contract methods: ${Object.keys(result.methods)}\n`)
-    const transfer_input = [
-      {
-        to_:"tz1UPBMNHjF8QS788pgHgCM6imek9KnDXSVC",
-        token_id:0n
-      }
-    ]
-    return result.methods.transfer(connected_account.address, transfer_input).send();  // transfer function
-  });
+  // get NFT ID and wallet to transfer it to
+  const transfer_to = document.getElementById('address').value;
+  const transfer_id = document.getElementById('nft-id').value;
 
-  // TODO: display block explorer link to user
-  console.log('View operation on block explorer: https://hangzhounet.tzkt.io/' + ret.opHash);
+  // check that input is not empty
+  try {
+    console.log("Transfering NFT "+transfer_id+" to "+transfer_to+"...");
+
+    // connect to smart contract and call mint method
+    const ret = await Tezos.wallet.at(contract_id).then((result) => {
+      console.log(`Available contract methods: ${Object.keys(result.methods)}\n`)
+      const transfer_input = [
+        {
+          to_: transfer_to,
+          token_id: transfer_id
+        }
+      ]
+      // call contract transfer function
+      return result.methods.transfer(connected_account.address, transfer_input).send();
+    });
+
+    // success - display block explorer link to user
+    var link = document.createElement('a');
+    var link_text = document.createTextNode('View operation on block explorer');
+    link.appendChild(link_text);
+    link.href = 'https://hangzhounet.tzkt.io/' + ret.opHash;
+    document.getElementById('transfer-success').appendChild(link);
+    document.getElementById("transfer-hidden").style.display = 'block';
+    console.log('View operation on block explorer: https://hangzhounet.tzkt.io/' + ret.opHash);
+  } catch (err) {
+    alert("ERROR: Unable to transfer NFT, ensure inputs are correct.");
+    throw new Error("Error with transfer function: ", err);
+  }
 }
