@@ -1,0 +1,4 @@
+CHANGELOG
+
+1.0.0 (2022-19-04)
+* Create a XTZ NFT and mint to the Hangzhounet blockchain.
