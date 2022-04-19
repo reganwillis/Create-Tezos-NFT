@@ -18,6 +18,7 @@ connectWallet();
 
 // hide success displays
 document.getElementById("transfer-hidden").style.display = 'none';
+document.getElementById("mint-hidden").style.display = 'none';
 
 // button functionality
 document.getElementById("connect-wallet").onclick = connectWallet;
@@ -103,45 +104,70 @@ async function getIPFSLink(nft_name, nft_description, nft_image, attributes_json
  * Call smart contract Mint entrypoint.
  */
 async function mintNFT() {
+  // hide success displays
+  document.getElementById("transfer-hidden").style.display = 'none';
+
   // first check that wallet has been connected (if not, connect)
   connectWallet();
 
-  console.log("Minting NFT on the Tezos blockchain...");
-  const user = "Temp User";  // TODO: get name from user
-  const nft_title = "Little Flower Grown by " + user;
-  const nft_description = "Minted from the Little Flower game. https://twitter.com/regrowgames";
-  const nft_image = '../dist/little-flower-nft.jpg';
+  try {
+    console.log("Minting NFT on the Tezos blockchain...");
+    const user = "Temp User";  // TODO: get name from user
+    const nft_title = "Little Flower Grown by " + user;
+    const nft_description = "Minted from the Little Flower game. https://twitter.com/regrowgames";
+    const nft_image = '../dist/little-flower-nft.jpg';
 
-  // get nft image metadata
-  const promise = await fetch("attributes.txt").then((response) => {return response}).catch((err) => {throw new Error("Unable to fetch attributes.txt: " + err)});
-  const attributes_text = await promise.text().then((result) => {return result}).catch((err) => {throw new Error('Error unpacking attributes: ' + err)});
-  const attributes_json = JSON.parse(attributes_text);
+    // get nft image metadata
+    const promise = await fetch("attributes.txt").then((response) => {return response}).catch((err) => {throw new Error("Unable to fetch attributes.txt: " + err)});
+    const attributes_text = await promise.text().then((result) => {return result}).catch((err) => {throw new Error('Error unpacking attributes: ' + err)});
+    const attributes_json = JSON.parse(attributes_text);
 
-  // get pinata metadata to send to smart contract
-  const IPFS_link = await getIPFSLink(nft_title, nft_description, nft_image, attributes_json).then((res) => {
-    let IPFS_hash = JSON.parse(res).IpfsHash;
-    let IPFS_link = "ipfs://" + IPFS_hash;
-    return IPFS_link;
-  });
+    // get pinata metadata to send to smart contract
+    const IPFS_link = await getIPFSLink(nft_title, nft_description, nft_image, attributes_json).then((res) => {
+      let IPFS_hash = JSON.parse(res).IpfsHash;
+      return IPFS_hash;
+    });
+    const shortened_IPFS_link = "ipfs://" + IPFS_link;
 
-  // TODO: display link to image to user (or just display image)
-  console.log("NFT uploaded to IPFS: ", IPFS_link);
+    console.log("NFT uploaded to IPFS: https://ipfs.io/ipfs/" + IPFS_link);
 
-  // connect to smart contract and call mint method
-  const ret = await Tezos.wallet.at(contract_id).then((result) => {
-    console.log(`Available contract methods: ${Object.keys(result.methods)}\n`)
-    const metadata = new MichelsonMap();
-    metadata.set("", char2Bytes(""));
-    metadata.set("name", char2Bytes(nft_title));
-    metadata.set("symbol", char2Bytes("XTZ"));
-    metadata.set("decimals", char2Bytes("0n"));
-    metadata.set("description", char2Bytes(nft_description));
-    metadata.set("IPFS Link", char2Bytes(IPFS_link));
-    return result.methods.mint(connected_account.address, metadata).send();
-  });
+    // connect to smart contract and call mint method
+    const ret = await Tezos.wallet.at(contract_id).then((result) => {
+      console.log(`Available contract methods: ${Object.keys(result.methods)}\n`)
+      const metadata = new MichelsonMap();
+      metadata.set("", char2Bytes(""));
+      metadata.set("name", char2Bytes(nft_title));
+      metadata.set("symbol", char2Bytes("XTZ"));
+      metadata.set("decimals", char2Bytes("0n"));
+      metadata.set("description", char2Bytes(nft_description));
+      metadata.set("IPFS Link", char2Bytes(shortened_IPFS_link));
+      return result.methods.mint(connected_account.address, metadata).send();
+    });
 
-  // TODO: display block explorer link to user
-  console.log('View operation on block explorer: https://hangzhounet.tzkt.io/' + ret.opHash);
+    console.log('View operation on block explorer: https://hangzhounet.tzkt.io/' + ret.opHash);
+
+    // success - display NFT to user
+    document.getElementById('mint-title').innerHTML = nft_title;
+    document.getElementById('nft').src = 'little-flower-nft.jpg';
+
+    // display IPFS link and block explorer link to user
+    var ipfs_link = document.createElement('a');
+    var ipfs_link_text = document.createTextNode('NFT uploaded to IPFS');
+    ipfs_link.appendChild(ipfs_link_text);
+    ipfs_link.href = 'https://ipfs.io/ipfs/' + IPFS_link;
+    document.getElementById('mint-success-ipfs').appendChild(ipfs_link);
+
+    var link = document.createElement('a');
+    var link_text = document.createTextNode('View operation on block explorer');
+    link.appendChild(link_text);
+    link.href = 'https://hangzhounet.tzkt.io/' + ret.opHash;
+    document.getElementById('mint-success-trans').appendChild(link);
+
+    document.getElementById("mint-hidden").style.display = 'block';
+  } catch(err) {
+    alert("ERROR: failure during mint function.");
+    throw new Error("Error with mint function: ", err);
+  }
 }
 
 /**
@@ -149,6 +175,9 @@ async function mintNFT() {
  * TODO: consolidate similar aspects between mintNFT and transferNFT
  */
 async function transferNFT() {
+  // hide success displays
+  document.getElementById("mint-hidden").style.display = 'none';
+
   // first check that wallet has been connected (if not, connect)
   connectWallet();
 
