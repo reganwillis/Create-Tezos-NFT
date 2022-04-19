@@ -1,10 +1,13 @@
 const pinataSDK = require('@pinata/sdk');
-const fs = require("fs");
+const fs = require('fs');
 
 // connect to pinata
 async function connectToPinata() {
-    const pinata_api_key = ("");
-    const pinata_secret_api_key = ("");
+    // get api keys from file
+    let pinata_keys_raw = fs.readFileSync('../secret.json');
+    let pinata_keys = JSON.parse(pinata_keys_raw);
+    const pinata_api_key = (pinata_keys.pinata.key);
+    const pinata_secret_api_key = (pinata_keys.pinata.secret);
     
     try {
         let pinata = pinataSDK(pinata_api_key, pinata_secret_api_key); // pinata instance

@@ -17,7 +17,13 @@ In the command prompt navigate to the top folder and run commands:
 Hosted at http://localhost:9000/.
 
 ### Use Dapp
-Create [Pinata API keys](https://app.pinata.cloud/keys) and add them to `./backend/backend.js` as values for `pinata_api_key` and `pinata_secret_api_key` (lines 6 and 7).
+Create [Pinata API keys](https://app.pinata.cloud/keys) and add them to a new file `./secret.json` with the structure:
+{
+    "pinata" : {
+        "key" : "<API key>",
+        "secret" : "<API secret>",
+    }
+}
 
 At the [frontend](http://localhost:9000/) connect a wallet (WARNING: recommend using Kukai wallet because that is the only one that has been tested) and approve the transaction in the [Kukai app](https://hangzhounet.kukai.app/), making sure to only use Hangzhounet. View the browser console to see a link to the transaction on the blockchain.
 
